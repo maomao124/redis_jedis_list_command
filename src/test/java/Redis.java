@@ -31,22 +31,35 @@ import redis.clients.jedis.args.ListPosition;
  * LTRIM	        保留列表中指定范围内的元素值
  */
 
+
 public class Redis
 {
+    /**
+     * The Jedis.
+     */
     static Jedis jedis;
 
+    /**
+     * Sets up.
+     */
     @BeforeEach
     void setUp()
     {
         System.out.println("--------------------");
     }
 
+    /**
+     * Tear down.
+     */
     @AfterEach
     void tearDown()
     {
         System.out.println("--------------------");
     }
 
+    /**
+     * Before all.
+     */
     @BeforeAll
     static void beforeAll()
     {
@@ -54,12 +67,18 @@ public class Redis
         jedis.auth("123456");
     }
 
+    /**
+     * After all.
+     */
     @AfterAll
     static void afterAll()
     {
         jedis.close();
     }
 
+    /**
+     * Lpush.
+     */
     @Test
     void lpush()
     {
@@ -72,12 +91,18 @@ public class Redis
         System.out.println(l);
     }
 
+    /**
+     * Rpush.
+     */
     @Test
     void rpush()
     {
         System.out.println(jedis.rpush("list2", "1", "2", "3", "4"));
     }
 
+    /**
+     * Lset.
+     */
     @Test
     void lset()
     {
@@ -85,6 +110,9 @@ public class Redis
         System.out.println(s);
     }
 
+    /**
+     * Lindex.
+     */
     @Test
     void lindex()
     {
@@ -101,6 +129,9 @@ public class Redis
         System.out.println(jedis.lindex("list1", 99));
     }
 
+    /**
+     * Linsert.
+     */
     @Test
     void linsert()
     {
@@ -110,6 +141,9 @@ public class Redis
         System.out.println(jedis.linsert("list2", ListPosition.BEFORE, "1", "123"));
     }
 
+    /**
+     * Llen.
+     */
     @Test
     void llen()
     {
@@ -124,4 +158,133 @@ public class Redis
     }
 
 
+    /**
+     * Lpop.
+     */
+    @Test
+    void lpop()
+    {
+        /*
+        以原子方式返回并删除列表的第一个 (LPOP) 或最后一个 (RPOP) 元素。
+        例如，如果列表包含元素“a”、“b”、“c”，LPOP 将返回“a”并且列表将变为“b”、“c”。
+        如果键不存在或列表已经为空，则返回特殊值“nil”。
+        */
+        System.out.println(jedis.lpop("list2"));
+    }
+
+    /**
+     * Rpop.
+     */
+    @Test
+    void rpop()
+    {
+        /*
+        以原子方式返回并删除列表的第一个 (LPOP) 或最后一个 (RPOP) 元素。
+        例如，如果列表包含元素“a”、“b”、“c”，LPOP 将返回“a”并且列表将变为“b”、“c”。
+        如果键不存在或列表已经为空，则返回特殊值“nil”。
+        */
+        System.out.println(jedis.rpop("list2"));
+    }
+
+    /**
+     * Lpushx.
+     */
+    @Test
+    void lpushx()
+    {
+        /*
+        在存储在 key 的列表的开头插入指定的值。
+        与LPUSH不同 ，当 key 不存在时不会执行任何操作
+        */
+        System.out.println(jedis.lpushx("list3", "1", "2"));
+        System.out.println(jedis.lpushx("list2", "1", "2"));
+    }
+
+    /**
+     * Rpushx.
+     */
+    @Test
+    void rpushx()
+    {
+        /*
+        在存储在 key 的列表的开头插入指定的值。
+        与LPUSH不同 ，当 key 不存在时不会执行任何操作
+        */
+        System.out.println(jedis.rpushx("list3", "1", "2"));
+        System.out.println(jedis.rpushx("list2", "1", "2"));
+    }
+
+    /**
+     * L range.
+     */
+    @Test
+    void lRange()
+    {
+        /*
+        返回存储在指定键的列表的指定元素。开始和结束是从零开始的索引。
+         0 是列表的第一个元素（列表头），1 是下一个元素，依此类推。
+        例如 LRANGE foobar 0 2 将返回列表的前三个元素。
+        start 和 end 也可以是负数，表示距列表末尾的偏移量。
+        例如 -1 是列表的最后一个元素，-2 是倒数第二个元素，依此类推。
+        与各种编程语言中的范围函数保持一致
+        请注意，如果您有一个从 0 到 100 的数字列表，
+        则 LRANGE 0 10 将返回 11 个元素，即包括最右边的项目。
+        这可能与您选择的编程语言中范围相关函数的行为一致，
+        也可能不一致（想想 Ruby 的 Range.new、Array#slice 或 Python 的 range() 函数）。
+        LRANGE 行为与 Tcl 之一一致。
+        超出范围的索引
+        超出范围的索引不会产生错误：
+        如果 start 超过列表的末尾，或者 start > end，则返回一个空列表。
+        如果 end 超过列表的末尾，Redis 将像列表的最后一个元素一样威胁它。
+        时间复杂度：O(start+n)（其中 n 是范围的长度，start 是起始偏移量）
+        */
+        System.out.println(jedis.lrange("list1", 2, 5));
+        System.out.println(jedis.lrange("list1", 2, 7));
+        System.out.println(jedis.lrange("list1", 0, jedis.llen("list1")));
+        System.out.println(jedis.lrange("list1", -999, 999));
+        System.out.println(jedis.lrange("list1", 999, 7));
+        System.out.println(jedis.lrange("list1", 9999, 99999));
+    }
+
+    /**
+     * Lrem.
+     */
+    @Test
+    void lrem()
+    {
+        /*
+        从列表中删除第一次出现的 value 元素。
+        如果 count 为零，则删除所有元素。
+        如果计数是负数，则从尾部到头部删除元素，而不是从头部到尾部，这是正常行为。
+        因此，例如，计数为 -2 和 hello 作为要从列表中删除的值的 LREM (a,b,c,hello,x,hello,hello) 将离开列表 (a,b,c,hello,x)。
+        删除元素的数量以整数形式返回，
+        请注意，不存在的键被 LREM 视为空列表，因此针对不存在的键的 LREM 将始终返回 0。
+        时间复杂度：O(N)（其中 N 是列表的长度）
+        */
+        System.out.println(jedis.lrem("list2", 0, "1"));
+    }
+
+    /**
+     * Ltrim.
+     */
+    @Test
+    void ltrim()
+    {
+        /*
+        修剪现有列表，使其仅包含指定范围的指定元素。开始和结束是从零开始的索引。
+        0 是列表的第一个元素（列表头），1 是下一个元素，依此类推。
+        例如，LTRIM foobar 0 2 将修改存储在 foobar 键处的列表，以便仅保留列表的前三个元素。
+        start 和 end 也可以是负数，表示距列表末尾的偏移量。
+        例如 -1 是列表的最后一个元素，-2 是倒数第二个元素，依此类推。
+        超出范围的索引不会产生错误：如果 start 超出列表的末尾，
+        或者 start > end，则保留一个空列表作为值。如果 end 超过列表的末尾，Redis 将像列表的最后一个元素一样威胁它。
+        提示：LTRIM 的明显用途是与 LPUSH/RPUSH 一起使用。
+        例如：
+        lpush("mylist", "someelement"); ltrim("mylist", 0, 99); *
+        上述两个命令将推送列表中的元素，注意列表不会无限制地增长。
+        例如，这在使用 Redis 存储日志时非常有用。
+        重要的是要注意，当以这种方式使用时，LTRIM 是一个 O(1) 操作，因为在平均情况下，只会从列表的尾部删除一个元素。
+        时间复杂度：O(n)（其中 n 是列表的 len - 范围的 len）*/
+        System.out.println(jedis.ltrim("list2", 2, 4));
+    }
 }
